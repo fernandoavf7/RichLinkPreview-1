@@ -158,6 +158,7 @@ public class RichPreview {
         }
     }
 
+
     private String resolveURL(String url, String part) {
         if(URLUtil.isValidUrl(part)) {
             return part;
@@ -165,12 +166,34 @@ public class RichPreview {
             URI base_uri = null;
             try {
                 base_uri = new URI(url);
+
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
-            base_uri = base_uri.resolve(part);
+
+            try{
+                part = fixSpecialCharacters(url, part);
+                base_uri = base_uri.resolve(part);
+
+            }catch (IllegalArgumentException i){
+                i.printStackTrace();
+            }
             return base_uri.toString();
         }
+    }
+
+    /*
+     To add url from websites that generate crashes
+     Example: https://www.falabella.com/falabella-cl/product/5771915/MacBook-Air-Intel-Core-i5-8GB-RAM-128GB-SDD-13%2C3-/5771915
+     this url contains a ? symbol in its image an generate crashes and cant load the preview image, for fix that add all sites with
+     errors
+     */
+    private String fixSpecialCharacters(String url, String part){
+        if(url.contains("falabella.com") && part.contains("?")){
+            part = part.split("\\?")[0];
+        }
+
+        return part;
     }
 
 }
